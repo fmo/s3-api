@@ -23,11 +23,26 @@ func main() {
 		}
 	}
 
-	http.HandleFunc("/check-image", checkImageHandler)
+	http.HandleFunc("/check-image", corsMiddleware(checkImageHandler))
 	fmt.Println("Server is listening on port 8129...")
 
 	if err := http.ListenAndServe(":8129", nil); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
+	}
+}
+
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
 	}
 }
 
