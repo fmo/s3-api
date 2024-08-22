@@ -74,11 +74,16 @@ func checkImageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var awsErr awserr.Error
 		if errors.As(err, &awsErr) && awsErr.Code() == s3.ErrCodeNoSuchKey {
+			imgUrl := fmt.Sprintf("https://s3.%s.amazonaws.com/%s/%s", os.Getenv("AWS_REGION"), bucket, "players/nobody.png")
+			response["imgUrl"] = imgUrl
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(response)
 			return
 		}
-		http.Error(w, fmt.Sprintf("failed to check if object exists: %v", err), http.StatusInternalServerError)
+		imgUrl := fmt.Sprintf("https://s3.%s.amazonaws.com/%s/%s", os.Getenv("AWS_REGION"), bucket, "players/nobody.png")
+		response["imgUrl"] = imgUrl
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
