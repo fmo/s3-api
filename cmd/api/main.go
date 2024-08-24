@@ -9,10 +9,17 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/joho/godotenv"
-	"log"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 )
+
+var log = logrus.New()
+
+func init() {
+	log.Out = os.Stdout
+	log.Level = logrus.DebugLevel
+}
 
 func main() {
 	environment := os.Getenv("ENVIRONMENT")
@@ -81,6 +88,7 @@ func checkImageHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		imgUrl := fmt.Sprintf("https://s3.%s.amazonaws.com/%s/%s", os.Getenv("AWS_REGION"), bucket, "players/nobody.png")
+		log.Debugf("There is a failure %v", err)
 		response["imgUrl"] = imgUrl
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
